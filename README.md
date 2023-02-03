@@ -98,3 +98,13 @@ If you run the script with the **error** argument it will only backup Plex's Log
 ```YAML
 sudo "/volume1/scripts/Backup_Plex_on_Asustor.sh error"
 ```
+
+### Restoring a backup
+
+To restore Plex from a backup run the following in a shell:
+
+**Note:** Replace "/path/file.tgz" with your backup file's path and filename.
+
+```YAML
+tar -zxvpf /path/file.tgz -C "/volume1/Plex/Library/Plex Media Server/"
+```
