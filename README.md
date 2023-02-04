@@ -106,5 +106,5 @@ To restore Plex from a backup run the following in a shell:
 **Note:** Replace "/path/file.tgz" with your backup file's path and filename.
 
 ```YAML
-tar -zxvpf /path/file.tgz -C "/volume1/Plex/Library/Plex Media Server/"
+tar -zxvpf /path/file.tgz -C "/volume1/Plex/Library/"
 ```
