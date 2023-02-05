@@ -82,7 +82,7 @@ Because ADM uses ash (in BusyBbox) instead of bash you will need to install bash
 Run the script by a user in sudo, sudoers or wheel group.
 
 ```YAML
-sudo "/volume1/scripts/Backup_Plex_on_Asustor.sh test"
+sudo -i "/volume1/scripts/Backup_Plex_on_Asustor.sh"
 ```
 
 ### Testing the script
@@ -90,21 +90,37 @@ sudo "/volume1/scripts/Backup_Plex_on_Asustor.sh test"
 If you run the script with the **test** argument it will only backup Plex's Logs folder.
 
 ```YAML
-sudo "/volume1/scripts/Backup_Plex_on_Asustor.sh test"
+sudo -i "/volume1/scripts/Backup_Plex_on_Asustor.sh" test
 ```
 
 If you run the script with the **error** argument it will only backup Plex's Logs folder and cause an error so you can test the error logging.
 
 ```YAML
-sudo "/volume1/scripts/Backup_Plex_on_Asustor.sh error"
+sudo -i "/volume1/scripts/Backup_Plex_on_Asustor.sh" error
 ```
 
-### Restoring a backup
+### Restoring from a backup
 
-To restore Plex from a backup run the following in a shell:
-
-**Note:** Replace "/path/file.tgz" with your backup file's path and filename.
+To restore Plex from a backup run the included Restore_Asustor_Plex_Backup.sh in a shell:
 
 ```YAML
-tar -zxvpf /path/file.tgz -C "/volume1/Plex/Library/"
+sudo -i "/volume1/scripts/Restore_Asustor_Plex_Backup.sh"
 ```
+
+**Note:** Replace "/volume1/scripts/" with the path to where Asustor Plex Backup's files are located.
+
+The first thing you'll see is a menu listing all of your Plex backups that you created with Asustor Plex Backup. Select the backup you want to restore and the sript will do the rest.
+
+<img src="images/restore.png">
+
+**Note:** I would only restore a backup from the same Plex version as you currently have installed (which is why the Plex version is included in the backup file name and logs.
+
+### Restoring a test backup
+
+If you previously ran Asustor Plex Backup with the **test** argument you can run Restore_Asustor_Plex_Backup.sh with the **test** argument so the menu will list any small backups (less than 1 MiB).
+
+```YAML
+sudo -i "/volume1/scripts/Restore_Asustor_Plex_Backup.sh" test
+```
+
+**Note:** Replace "/volume1/scripts/" with the path to where Asustor Plex Backup's files are located.
