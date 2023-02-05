@@ -82,7 +82,7 @@ Because ADM uses ash (in BusyBbox) instead of bash you will need to install bash
 Run the script by a user in sudo, sudoers or wheel group.
 
 ```YAML
-sudo -i "/volume1/scripts/Backup_Plex_on_Asustor.sh"
+sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh"
 ```
 
 ### Testing the script
@@ -90,13 +90,13 @@ sudo -i "/volume1/scripts/Backup_Plex_on_Asustor.sh"
 If you run the script with the **test** argument it will only backup Plex's Logs folder.
 
 ```YAML
-sudo -i "/volume1/scripts/Backup_Plex_on_Asustor.sh" test
+sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh" test
 ```
 
 If you run the script with the **error** argument it will only backup Plex's Logs folder and cause an error so you can test the error logging.
 
 ```YAML
-sudo -i "/volume1/scripts/Backup_Plex_on_Asustor.sh" error
+sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh" error
 ```
 
 ### Restoring from a backup
