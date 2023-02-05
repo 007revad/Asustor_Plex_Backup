@@ -2,22 +2,23 @@
 # shellcheck disable=SC2317,SC2181
 #--------------------------------------------------------------------------
 # Backup Asustor NAS Plex Database to tgz file in Backup folder.
-# v1.5.1  30-Jan-2023  007revad
+# v1.6.0  05-Feb-2023  007revad
 #
 #   MUST be run by a user in sudo, sudoers or wheel group, or as root
 #
 # To run the script:
-# sudo /volume1/scripts/backup_asustor_plex_to_tar.sh
-#    Change /volume1/scripts/ to the path where this script is located
+# sudo -i /volume1/scripts/backup_asustor_plex_to_tar.sh
+#   Change /volume1/scripts/ to the path where this script is located
 #
 # To do a test run on just Plex's profiles folder run:
-# /volume1/scripts/backup_asustor_plex_to_tar.sh test
+# sudo -i /volume1/scripts/backup_asustor_plex_to_tar.sh test
+#   Change /volume1/scripts/ to the path where this script is located
 #
 # Github: https://github.com/007revad/Asustor_Plex_Backup
 # Script verified at https://www.shellcheck.net/
 #--------------------------------------------------------------------------
 # REQUIRED:
-# Because the Asustor only has busybox this script needs bash installed.
+# Because the Asustor only has BusyBox this script needs bash installed.
 #
 # Install Entware from App Central, then run the following commands via SSH
 # You can run the commands in "Shell In A Box" from App Central, or use PuTTY
@@ -25,25 +26,18 @@
 #   opkg install bash
 #--------------------------------------------------------------------------
 
-# TODO maybe change /volume1/ to /share/
-
-# TODO Maybe change errors in shell and log to only appear if there are tar errors in the error log.
-#      All other errors are already logged in the main log file (need to check that they all are).
-
-# TODO create Restore script ???
 
 # Changes
-# Added check that it's running in bash.
-# Added instructions on how to install bash.
-# Added check that backup directory exists.
-# Moved settings out of the script to a separate config file.
-# Fixed checking if Plex has stopped.
+# Added restore_asustor_plex.sh script.
+# Changed to abort if not running in bash.
+# Changed /volume1/Plex to /share/Plex in case Asustor allow installing Plex on different volume in future
+# Improved checking if Plex has stopped.
 
 
 #--------------------------------------------------------------------------
 
-# Redirecting stdout and stderr to separate Log and Error Log
-# causes an error on Asustor NAS unless bash is installed.
+# Process Expansion and redirecting stdout and stderr to separate Log and 
+# Error Log causes an error on Asustor NAS unless bash is installed.
 # Check if script is running in GNU bash and not BusyBox ash
 
 Shell=$(/proc/self/exe --version 2>/dev/null | grep "GNU bash" | cut -d "," -f1)
@@ -57,11 +51,12 @@ if [ "$Shell" != "GNU bash" ]; then
 fi
 
 
-# Read variables from plex_server_sync.config
+# Read variables from backup_asustor_plex.config
 if [[ -f $(dirname -- "$0";)/backup_asustor_plex.config ]];then
     source $(dirname -- "$0";)/backup_asustor_plex.config
 else
     echo "backup_asustor_plex.config file missing!"
+    exit 1
 fi
 
 
@@ -157,7 +152,8 @@ cleanup() {
     if [[ -s $Tmp_Err_Log_File ]] && [[ -d $Backup_Directory ]]; then
         mv "${Tmp_Err_Log_File}" "${Err_Log_File}"
         if [[ $? -gt "0" ]]; then
-            echo "WARNING Failed moving ${Tmp_Err_Log_File} to ${Err_Log_File}" |& tee -a "${Err_Log_File}"
+            echo "WARNING Failed moving ${Tmp_Err_Log_File} to ${Err_Log_File}"\
+                |& tee -a "${Err_Log_File}"
         fi
     fi
     # Delete our tmp directory
@@ -230,7 +226,7 @@ if [[ -f /etc/nas.conf ]]; then Brand="$(awk '/^Vendor\s/{print $3}' /etc/nas.co
 if [[ ${Brand,,} != "asustor" ]]; then
     if [[ -d $Backup_Directory ]]; then
         echo "Checking script is running on a Asustor NAS" |& tee -a "${Tmp_Err_Log_File}"
-        echo "ERROR: $( hostname ) is not a Asustor! Aborting." |& tee -a "${Tmp_Err_Log_File}"
+        echo "ERROR: $(hostname) is not a Asustor! Aborting." |& tee -a "${Tmp_Err_Log_File}"
     else
         # Can't log error to log file because $Backup_Directory does not exist
         echo -e "\nChecking script is running on a Asustor NAS"
@@ -245,11 +241,8 @@ fi
 #--------------------------------------------------------------------------
 # Find Plex Media Server location
 
-# Get the Plex Media Server data location
-#Plex_Data_Path=/share/Plex/Library
-# Asustor always installs apps on volume1 aka volmain
-Plex_Data_Path=/volume1/Plex/Library
-# /volume1/Plex/Library
+# Set the Plex Media Server data location
+Plex_Data_Path=/share/Plex/Library
 
 
 #--------------------------------------------------------------------------
@@ -344,9 +337,22 @@ fi
 
 
 # Nicely terminate any residual Plex processes (plug-ins, tuner service and EAE etc)
-pgrep [Pp]lex | xargs kill -15 &>/dev/null
+###pgrep [Pp]lex | xargs kill -15 &>/dev/null
 # Give sockets a moment to close
-sleep 5
+###sleep 5
+
+# Kill any residual processes which DSM did not clean up (plug-ins and EAE)
+Pids="$(ps -ef | grep -i 'plex plug-in' | grep -v grep | awk '{print $2}')"
+[ "$Pids" != "" ] && kill -9 $Pids
+
+Pids="$(ps -ef | grep -i 'plex eae service' | grep -v grep | awk '{print $2}')"
+[ "$Pids" != "" ] && kill -9 $Pids
+
+Pids="$(ps -ef | grep -i 'plex tuner service' | grep -v grep | awk '{print $2}')"
+[ "$Pids" != "" ] && kill -9 $Pids
+
+# Give sockets a moment to close
+sleep 2
 
 
 #--------------------------------------------------------------------------
@@ -363,7 +369,8 @@ if [[ -n $Response ]]; then
     # Check if plexmediaserver still found in $Response
     Response=$(pgrep -l plex)
     if [[ -n $Response ]]; then
-        echo "ERROR: Some Plex processes still running! Aborting backup." |& tee -a "${Log_File}" "${Tmp_Err_Log_File}"
+        echo "ERROR: Some Plex processes still running! Aborting backup."\
+            |& tee -a "${Log_File}" "${Tmp_Err_Log_File}"
         echo "${Response}" |& tee -a "${Log_File}" "${Tmp_Err_Log_File}"
         # Start Plex to make sure it's not left partially running
         /usr/local/AppCentral/plexmediaserver/CONTROL/start-stop.sh start
@@ -433,7 +440,7 @@ if [[ -n $Test ]]; then
     fi
 else
     # Backup to tgz with PMS version and date in file name, send all output to shell and log, plus errors to error.log
-    # Using -C to change directory to "/volume1/Plex/Library/Application Support" to not backup absolute path
+    # Using -C to change directory to "/share/Plex/Library/Application Support" to not backup absolute path
     # and avoid "tar: Removing leading /" error
     if [[ ${LogAll,,} == "yes" ]]; then
         echo "Logging all archived files" |& tee -a "${Log_File}"
@@ -474,7 +481,8 @@ echo "Backup Finished:" "${Finished}" |& tee -a "${Log_File}"
 # Append days, hours, minutes and seconds from $Runtime
 printf "Backup Duration: " |& tee -a "${Log_File}"
 printf '%dd:%02dh:%02dm:%02ds\n' \
-$((Runtime/86400)) $((Runtime%86400/3600)) $((Runtime%3600/60)) \ $((Runtime%60)) |& tee -a "${Log_File}"
+$((Runtime/86400)) $((Runtime%86400/3600)) $((Runtime%3600/60))\
+    $((Runtime%60)) |& tee -a "${Log_File}"
 
 
 #--------------------------------------------------------------------------
