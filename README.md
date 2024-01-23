@@ -90,7 +90,7 @@ Because ADM uses ash (in BusyBbox) instead of bash you will need to install bash
 Run the script by a user in sudo, sudoers or wheel group.
 
 ```YAML
-sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh"
+sudo -s "/volume1/scripts/Asustor_Plex_Backup.sh"
 ```
 
 ### Testing the script
@@ -98,13 +98,13 @@ sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh"
 If you run the script with the **test** argument it will only backup Plex's Logs folder.
 
 ```YAML
-sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh" test
+sudo -s "/volume1/scripts/Asustor_Plex_Backup.sh" test
 ```
 
 If you run the script with the **error** argument it will only backup Plex's Logs folder and cause an error so you can test the error logging.
 
 ```YAML
-sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh" error
+sudo -s "/volume1/scripts/Asustor_Plex_Backup.sh" error
 ```
 
 ### Restoring from a backup
@@ -112,7 +112,7 @@ sudo -i "/volume1/scripts/Asustor_Plex_Backup.sh" error
 To restore Plex from a backup run the included Restore_Asustor_Plex_Backup.sh in a shell:
 
 ```YAML
-sudo -i "/volume1/scripts/Restore_Asustor_Plex_Backup.sh"
+sudo -s "/volume1/scripts/Restore_Asustor_Plex_Backup.sh"
 ```
 
 **Note:** Replace "/volume1/scripts/" with the path to where Asustor Plex Backup's files are located.
@@ -128,7 +128,7 @@ The first thing you'll see is a menu listing all of your Plex backups that you c
 If you previously ran Asustor Plex Backup with the **test** argument you can run Restore_Asustor_Plex_Backup.sh with the **test** argument so the menu will list any small backups (less than 1 MiB).
 
 ```YAML
-sudo -i "/volume1/scripts/Restore_Asustor_Plex_Backup.sh" test
+sudo -s "/volume1/scripts/Restore_Asustor_Plex_Backup.sh" test
 ```
 
 **Note:** Replace "/volume1/scripts/" with the path to where Asustor Plex Backup's files are located.
