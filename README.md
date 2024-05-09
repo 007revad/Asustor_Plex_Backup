@@ -47,7 +47,7 @@ If you run multiple backups on the same day the time will be included in the fil
 ### Download the script
 
 1. Download the latest version _Source code (zip)_ from https://github.com/007revad/Asustor_Plex_Backup/releases
-2. Save the download zip file to a folder on the Synology.
+2. Save the download zip file to a folder on the Asustor.
 3. Unzip the zip file.
 
 ### Settings
@@ -59,7 +59,7 @@ backupDirectory="/volume1/Backups/Plex_Backups"
 ```
 
 The script gets the brand, model and hostname from the NAS to use logs and backup name.
-Set Name= to "brand", "model", "hostname" or some nickname. If Name= is blank the Synology's hostname will be used.
+Set Name= to "brand", "model", "hostname" or some nickname. If Name= is blank the Asustor's hostname will be used.
 
 The LogAll setting enables, or disables, logging every file that gets backed up. Set LogAll= to "yes" or "no". Blank is the same as no.
 
@@ -73,7 +73,7 @@ SysLog="yes"
 
 ### Requirements
 
-Make sure that backup_asustor_plex.config and plex_backup_exclude.txt are in the same folder as backup_asustor_plex_to_tar.sh
+Make sure that backup_asustor_plex.config and plex_backup_exclude.txt are in the same folder as Asustor_Plex_Backup.sh
 
 **Note:** Due to some of the commands used **this script needs to be** run by a user in sudo, sudoers or wheel group, or as root
 
