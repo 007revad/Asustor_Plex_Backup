@@ -20,7 +20,9 @@
 # REQUIRED:
 # Because the Asustor only has BusyBox this script needs bash installed.
 #
-# Install Entware from App Central, then run the following commands via SSH
+# There are 2 ways to install bash: 
+# Install netdata from App Central
+# or Install Entware from App Central, then run the following commands via SSH
 # You can run the commands in "Shell In A Box" from App Central, or use PuTTY
 #   opkg update && opkg upgrade
 #   opkg install bash
